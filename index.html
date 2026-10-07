@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Munro Games</title>
-  <meta name="description" content="Playable Godot game prototypes by Matt Munro — platformers, roguelikes, idle games, tower defense and more, running right in your browser.">
+  <meta name="description" content="Playable Godot game prototypes by Matt Munro. Platformers, roguelikes, idle games, tower defense and more, playable right in your browser.">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Munro Games">
-  <meta property="og:description" content="Playable Godot prototypes — built solo, running in your browser.">
+  <meta property="og:description" content="Playable Godot prototypes, built solo and running in your browser.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://munro.games">
   <meta property="og:image" content="https://munro.games/icons/icon-512.png">
@@ -219,7 +219,7 @@
         <img src="icons/icon-512.png" alt="">
         <h1 class="wordmark">MUNRO <span class="games">GAMES</span></h1>
       </div>
-      <p class="tagline" id="tagline">Playable Godot prototypes — built solo, running right in your browser.</p>
+      <p class="tagline" id="tagline">Playable Godot prototypes, built solo and running right in your browser.</p>
     </div>
   </header>
 
@@ -253,23 +253,22 @@
          group     optional section key (see SECTIONS below)
     ------------------------------------------------------------------ */
     const GAMES = [
-      // Example (remove once the first real game lands):
-      // {
-      //   id: 'neon_scars',
-      //   title: 'Neon Scars',
-      //   genre: 'Beat-’em-up',
-      //   blurb: 'A neon-soaked horde brawler.',
-      //   eng: 'Hitbox/hurtbox combat, wave spawning, screen-shake juice.',
-      //   play: 'play/neon_scars/',
-      //   platform: 'desktop',
-      // },
+      {
+        id: 'floodline',
+        title: 'Floodline',
+        genre: 'One-button runner',
+        blurb: 'Outrun a rising flood across a drowned city. One button, endless runs. Out now on the App Store and Google Play.',
+        eng: 'Procedural terrain, a physics vehicle rig, and 1-4 player hotseat on a touch-first GL Compatibility renderer.',
+        play: 'play/floodline/',
+        platform: 'ipad',
+      },
     ];
 
     // Ordered sections. Games with a matching `group` land here; everything
     // else falls into the default section. Omit the label to hide the header.
     const SECTIONS = [
       { key: null,         label: null },
-      { key: 'uncle-matt', label: "Uncle Matt’s — for the kids" },
+      { key: 'uncle-matt', label: "Uncle Matt’s: for the kids" },
     ];
 
     function cardHTML(g) {
@@ -313,7 +312,7 @@
       const genres = new Set(GAMES.map(g => (g.genre || '').toLowerCase()).filter(Boolean));
       if (genres.size >= 3) {
         document.getElementById('tagline').textContent =
-          'Prototypes across ' + genres.size + ' genres — built solo in Godot, running right in your browser.';
+          'Prototypes across ' + genres.size + ' genres, built solo in Godot and playable in your browser.';
       }
 
       let html = '';
