@@ -18,7 +18,7 @@ A checklist for putting one more Godot game on the showcase. Floodline (commit h
 `export_presets.cfg` is gitignored in each game repo (holds signing ids), so the preset lives locally only. Add a **Web** preset with:
 - **Thread Support = OFF** (`variant/thread_support=false`) — GitHub Pages can't set the COOP/COEP headers threads need.
 - `html/canvas_resize_policy=2` (adaptive — canvas fills the window, reliably, across browsers/DPR).
-- `html/head_include="<style>html,body{margin:0;padding:0;background:#0d0d0d;overflow:hidden}</style>"`
+- `html/head_include=...` — charcoal letterbox bg **plus a feature-detected fullscreen button** (bottom-right; hides itself on iOS Safari where element-fullscreen is blocked). The exact value is long and lives only in the gitignored preset, so **copy the `<style>…</style><script>…fsbtn…</script>` block verbatim from the `<head>` of an existing `play/<id>/index.html`** (e.g. Floodline). ⚠️ The cfg wraps `head_include` in double-quotes, so the value must contain **no `"` and no `\`** (the button script uses single quotes and a literal `⛶` glyph).
 
 ## 3. Landscape / fixed-aspect games: letterbox via the engine (not CSS)
 If the game is a fixed 16:9 (or other) design and would otherwise show background gaps or squash in odd windows, add **web-only** letterboxing in the first scene that loads (Floodline: `splash.gd._ready()`):
