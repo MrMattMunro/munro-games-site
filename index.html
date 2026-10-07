@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Munro Games</title>
+  <meta name="description" content="Playable Godot game prototypes by Matt Munro — platformers, roguelikes, idle games, tower defense and more, running right in your browser.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Munro Games">
+  <meta property="og:description" content="Playable Godot prototypes — built solo, running in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://munro.games">
+  <meta property="og:image" content="https://munro.games/icons/icon-512.png">
+
+  <!-- Icons / PWA -->
+  <link rel="icon" href="icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0d0d0d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Munro Games">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --surface-2: #1c1c1c;
+      --rule:      #2a2a2a;
+      --ink:       #ededed;
+      --ink-dim:   #9a9a9a;
+      --orange:    #f7941d;
+      --orange-dk: #c9770f;
+      --radius: 14px;
+      --maxw: 1080px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* ---- Header ---- */
+    header {
+      padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(1.5rem, 3vw, 2.5rem);
+      text-align: center;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .brand img {
+      width: clamp(46px, 9vw, 64px);
+      height: auto;
+      display: block;
+    }
+    .wordmark {
+      font-family: Orbitron, sans-serif;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      line-height: 1;
+      margin: 0;
+    }
+    .wordmark .games { color: var(--orange); }
+    .tagline {
+      color: var(--ink-dim);
+      font-size: clamp(1rem, 2.4vw, 1.15rem);
+      max-width: 34rem;
+      margin: 0 auto;
+    }
+
+    /* ---- Grid ---- */
+    main { padding-bottom: 4rem; }
+    .section-label {
+      font-family: Orbitron, sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ---- Card ---- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color .15s ease, transform .15s ease;
+    }
+    .card:hover { border-color: var(--orange-dk); transform: translateY(-2px); }
+    .thumb {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb .placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-dim);
+      font-family: Orbitron, sans-serif;
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .ribbon {
+      position: absolute; top: 10px; left: 10px;
+      background: var(--orange); color: #111;
+      font-weight: 700; font-size: 0.68rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 999px;
+    }
+    .card-body {
+      padding: 1rem 1.1rem 1.2rem;
+      display: flex; flex-direction: column; gap: 0.55rem;
+      flex: 1;
+    }
+    .card h3 {
+      font-family: Orbitron, sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    .genre {
+      font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--orange);
+      margin: -0.2rem 0 0;
+    }
+    .blurb { font-size: 0.92rem; color: var(--ink); margin: 0; }
+    .eng {
+      font-size: 0.82rem; color: var(--ink-dim); margin: 0;
+    }
+    .card-actions {
+      margin-top: auto;
+      padding-top: 0.6rem;
+      display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-weight: 600; font-size: 0.9rem;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .btn-play { background: var(--orange); color: #111; }
+    .btn-play:hover { background: #ffa836; }
+    .btn-store { background: transparent; color: var(--ink); border-color: var(--rule); }
+    .btn-store:hover { border-color: var(--ink-dim); }
+    .platform {
+      margin-left: auto;
+      font-size: 0.72rem; letter-spacing: 0.06em;
+      color: var(--ink-dim);
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .platform.ipad { color: #6fd08c; }
+
+    /* ---- Empty state ---- */
+    .empty {
+      text-align: center;
+      color: var(--ink-dim);
+      border: 1px dashed var(--rule);
+      border-radius: var(--radius);
+      padding: 3rem 1.5rem;
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 2rem 0 3rem;
+      text-align: center;
+      color: var(--ink-dim);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--orange); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <img src="icons/icon-512.png" alt="">
+        <h1 class="wordmark">MUNRO <span class="games">GAMES</span></h1>
+      </div>
+      <p class="tagline" id="tagline">Playable Godot prototypes — built solo, running right in your browser.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="sections"></div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Built in Godot by Matt Munro · <a href="mailto:matt@munro.games">matt@munro.games</a><br>
+      © Munro Solutions Pty Ltd
+    </div>
+  </footer>
+
+  <script>
+    /* ------------------------------------------------------------------
+       ADD A GAME = ADD ONE ENTRY HERE, drop its build in play/<id>/, and
+       its thumbnail in assets/<id>.png. No other edits needed.
+
+       Fields:
+         id        folder name under play/ and assets/<id>.png
+         title     display name
+         genre     short genre label (uppercase styled)
+         blurb     one plain sentence on what it is
+         eng       the engineering angle (shown dimmer)
+         play      path to the playable build (omit for promo-only)
+         platform  'ipad'  -> touch-playable, tagged green
+                   'desktop' -> keyboard/mouse only
+         store     { label, url }  optional wishlist/buy link
+         ribbon    optional corner label, e.g. 'Demo'
+         group     optional section key (see SECTIONS below)
+    ------------------------------------------------------------------ */
+    const GAMES = [
+      // Example (remove once the first real game lands):
+      // {
+      //   id: 'neon_scars',
+      //   title: 'Neon Scars',
+      //   genre: 'Beat-’em-up',
+      //   blurb: 'A neon-soaked horde brawler.',
+      //   eng: 'Hitbox/hurtbox combat, wave spawning, screen-shake juice.',
+      //   play: 'play/neon_scars/',
+      //   platform: 'desktop',
+      // },
+    ];
+
+    // Ordered sections. Games with a matching `group` land here; everything
+    // else falls into the default section. Omit the label to hide the header.
+    const SECTIONS = [
+      { key: null,         label: null },
+      { key: 'uncle-matt', label: "Uncle Matt’s — for the kids" },
+    ];
+
+    function cardHTML(g) {
+      const thumb = g.thumb || ('assets/' + g.id + '.png');
+      const ribbon = g.ribbon ? '<span class="ribbon">' + g.ribbon + '</span>' : '';
+      const img = '<img src="' + thumb + '" alt="' + g.title + '" loading="lazy" ' +
+                  'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+                  '<span class="placeholder" style="display:none">' + g.title + '</span>';
+      const playBtn = g.play
+        ? '<a class="btn btn-play" href="' + g.play + '">▶ Play</a>'
+        : '';
+      const storeBtn = g.store
+        ? '<a class="btn btn-store" href="' + g.store.url + '" target="_blank" rel="noopener">' + g.store.label + '</a>'
+        : '';
+      const plat = g.platform === 'ipad'
+        ? '<span class="platform ipad">● Plays on iPad</span>'
+        : '<span class="platform">Desktop · keyboard</span>';
+      const genre = g.genre ? '<p class="genre">' + g.genre + '</p>' : '';
+      const eng = g.eng ? '<p class="eng">' + g.eng + '</p>' : '';
+      return (
+        '<article class="card">' +
+          '<div class="thumb">' + ribbon + img + '</div>' +
+          '<div class="card-body">' +
+            '<h3>' + g.title + '</h3>' + genre +
+            '<p class="blurb">' + g.blurb + '</p>' + eng +
+            '<div class="card-actions">' + playBtn + storeBtn + plat + '</div>' +
+          '</div>' +
+        '</article>'
+      );
+    }
+
+    function render() {
+      const host = document.getElementById('sections');
+
+      if (GAMES.length === 0) {
+        host.innerHTML = '<div class="empty">The first playable demos are landing here shortly. Check back soon.</div>';
+        return;
+      }
+
+      // Tagline genre count.
+      const genres = new Set(GAMES.map(g => (g.genre || '').toLowerCase()).filter(Boolean));
+      if (genres.size >= 3) {
+        document.getElementById('tagline').textContent =
+          'Prototypes across ' + genres.size + ' genres — built solo in Godot, running right in your browser.';
+      }
+
+      let html = '';
+      for (const sec of SECTIONS) {
+        const games = GAMES.filter(g => (g.group || null) === sec.key);
+        if (games.length === 0) continue;
+        if (sec.label) html += '<h2 class="section-label">' + sec.label + '</h2>';
+        html += '<div class="grid">' + games.map(cardHTML).join('') + '</div>';
+      }
+      host.innerHTML = html;
+    }
+
+    render();
+  </script>
+</body>
+</html>

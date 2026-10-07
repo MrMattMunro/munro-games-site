@@ -1,0 +1,7 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Godot export scratch (builds live under play/<id>/ and ARE committed)
+*.tmp
