@@ -11,7 +11,7 @@
   <meta property="og:description" content="Playable Godot prototypes, built solo and running in your browser.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://munro.games">
-  <meta property="og:image" content="https://munro.games/icons/icon-512.png">
+  <meta property="og:image" content="https://munro.games/assets/mascot-lockup.png">
 
   <!-- Icons / PWA -->
   <link rel="icon" href="icons/favicon.ico" sizes="any">
@@ -63,26 +63,21 @@
       padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(1.5rem, 3vw, 2.5rem);
       text-align: center;
     }
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-    }
-    .brand img {
-      width: clamp(46px, 9vw, 64px);
+    .hero-logo {
+      width: clamp(240px, 46vw, 400px);
       height: auto;
       display: block;
+      margin: 0 auto 1.25rem;
     }
-    .wordmark {
-      font-family: Orbitron, sans-serif;
-      font-weight: 900;
-      letter-spacing: 0.04em;
-      font-size: clamp(1.5rem, 5vw, 2.4rem);
-      line-height: 1;
-      margin: 0;
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
-    .wordmark .games { color: var(--orange); }
     .tagline {
       color: var(--ink-dim);
       font-size: clamp(1rem, 2.4vw, 1.15rem);
@@ -215,10 +210,8 @@
 <body>
   <header>
     <div class="wrap">
-      <div class="brand">
-        <img src="icons/icon-512.png" alt="">
-        <h1 class="wordmark">MUNRO <span class="games">GAMES</span></h1>
-      </div>
+      <img class="hero-logo" src="assets/mascot-lockup.png" alt="Munro Games">
+      <h1 class="sr-only">Munro Games</h1>
       <p class="tagline" id="tagline">Playable Godot prototypes, built solo and running right in your browser.</p>
     </div>
   </header>
@@ -261,6 +254,16 @@
         eng: 'Procedural terrain, a physics vehicle rig, and 1-4 player hotseat on a touch-first GL Compatibility renderer.',
         play: 'play/floodline/',
         platform: 'ipad',
+      },
+      {
+        id: 'apprentice-arena',
+        title: 'Apprentice Arena',
+        genre: 'Arena brawler',
+        blurb: 'Pick a little apprentice and survive waves in the arena, or take the touch puzzle campaign. Play with a controller or keyboard on desktop, or tap through it on a phone or tablet.',
+        eng: 'One build serves both a controller waves mode and a touch campaign, chosen at launch from browser and gamepad detection, on a GL Compatibility renderer.',
+        play: 'play/apprentice-arena/',
+        platform: 'ipad',
+        ribbon: 'Beta',
       },
       {
         id: 'everhorde',
