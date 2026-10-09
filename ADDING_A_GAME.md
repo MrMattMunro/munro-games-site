@@ -3,8 +3,19 @@
 A checklist for putting one more Godot game on the showcase. Floodline (commit history +
 `claude-assistant/plans/munro-games/2026-10-07-prototype-showcase-page.md`) is the worked example.
 
+> ⚠️ **BUILDS LIVE IN S3 NOW, NOT IN THIS REPO (changed 2026-10-09).** GitHub rejects files over
+> 100MB and the builds were blowing past it. Web builds are hosted in **S3** (`s3://munro-games-play/<id>/`,
+> private, us-east-1) and served over **CloudFront** at **`https://play.munro.games/<id>/index.html`**
+> (ACM cert, Route 53 alias, all on AWS account `554605724969` via `aws --profile munro-personal`;
+> CloudFront distribution `E6DDPBBVEY1XE`). This repo keeps ONLY the lightweight showcase (index.html +
+> thumbnails). `play/` is gitignored. **Deploy a build with `tools/deploy-game.sh <id> <build-dir>`**
+> (syncs to S3, fixes the wasm content-type, invalidates the CloudFront cache). So the old "export into
+> the site repo + git-commit the build + push" steps below (4, 7) are superseded: export locally, run
+> deploy-game.sh, and the only thing you commit here is the card in index.html + the thumbnail. The
+> card's `play:` is the full `https://play.munro.games/<id>/index.html` URL.
+
 **Locations**
-- Site repo: `M:\Git\munro-games-site` (SSH remote `MrMattMunro/munro-games-site`, GitHub Pages). **NOT** `C:\godot`.
+- Site repo: `M:\Git\munro-games-site` (SSH remote `MrMattMunro/munro-games-site`, GitHub Pages). **NOT** `C:\godot`. Holds the showcase only; builds are in S3 (see banner above).
 - Game repos: `C:\godot\<name>` (own remote, often with CI — see step 7).
 - Godot editors: `C:\godot\Godot_v4.6.1 / 4.6.3 / 4.7.1 / 4.7.2_...console.exe`. **Match the game's `project.godot` version** (web templates are version-specific).
 
