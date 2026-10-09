@@ -229,16 +229,19 @@
 
   <script>
     /* ------------------------------------------------------------------
-       ADD A GAME = ADD ONE ENTRY HERE, drop its build in play/<id>/, and
-       its thumbnail in assets/<id>.png. No other edits needed.
+       ADD A GAME = ADD ONE ENTRY HERE + a thumbnail in assets/<id>.png.
+       The playable build lives in S3 (s3://munro-games-play/<id>/), served at
+       https://play.munro.games/<id>/ over CloudFront, NOT in this repo (builds
+       are too big for GitHub). Upload a build with tools/deploy-game.sh; this
+       repo holds only the showcase. Full steps: ADDING_A_GAME.md.
 
        Fields:
-         id        folder name under play/ and assets/<id>.png
+         id        thumbnail assets/<id>.png + S3 folder <id>/
          title     display name
          genre     short genre label (uppercase styled)
          blurb     one plain sentence on what it is
          eng       the engineering angle (shown dimmer)
-         play      path to the playable build (omit for promo-only)
+         play      full https://play.munro.games/<id>/index.html (omit for promo-only)
          platform  'ipad'  -> touch-playable, tagged green
                    'desktop' -> keyboard/mouse only
          store     { label, url }  optional wishlist/buy link
@@ -252,7 +255,7 @@
         genre: 'One-button runner',
         blurb: 'Outrun a rising flood across a drowned city. One button, endless runs. Out now on the App Store and Google Play.',
         eng: 'Procedural terrain, a physics vehicle rig, and 1-4 player hotseat on a touch-first GL Compatibility renderer.',
-        play: 'play/floodline/',
+        play: 'https://play.munro.games/floodline/index.html',
         platform: 'ipad',
       },
       {
@@ -261,7 +264,7 @@
         genre: 'Arena brawler',
         blurb: 'Pick a little apprentice and survive waves in the arena, or take the touch puzzle campaign. Play with a controller or keyboard on desktop, or tap through it on a phone or tablet.',
         eng: 'One build serves both a controller waves mode and a touch campaign, chosen at launch from browser and gamepad detection, on a GL Compatibility renderer.',
-        play: 'play/apprentice-arena/',
+        play: 'https://play.munro.games/apprentice-arena/index.html',
         platform: 'ipad',
         ribbon: 'Beta',
       },
@@ -271,7 +274,7 @@
         genre: 'Horde survivor',
         blurb: 'Hold your ground against an endless fantasy horde. Weave through the swarm, level up, and stack weapons until the whole field is yours.',
         eng: 'One movement path shared by an analog touch joystick and the keyboard, on a GL Compatibility renderer that runs the same build on iPad and desktop web.',
-        play: 'play/everhorde/',
+        play: 'https://play.munro.games/everhorde/index.html',
         platform: 'ipad',
         ribbon: 'Prototype',
       },

@@ -3,5 +3,10 @@
 Thumbs.db
 desktop.ini
 
-# Godot export scratch (builds live under play/<id>/ and ARE committed)
+# Godot export scratch
 *.tmp
+
+# Game builds live in S3 (s3://munro-games-play/<id>/), served over CloudFront at
+# play.munro.games, NOT in git (too big for GitHub's 100MB limit). Deploy with
+# tools/deploy-game.sh. This repo holds only the lightweight showcase.
+play/
