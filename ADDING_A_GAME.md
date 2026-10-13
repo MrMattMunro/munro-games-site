@@ -49,9 +49,9 @@ Test it locally first: `python -m http.server 8778 --directory M:/Git/munro-game
 
 Then deploy the build to S3 + CloudFront:
 ```
-tools/deploy-game.sh <id> "M:/Git/munro-games-site/play/<id>"
+tools/deploy-game.sh <id> "M:/Git/munro-games-site/play/<id>" "<Display Name>" <orientation> "#0d0d0d" <overlay>
 ```
-This `aws s3 sync --delete`s the folder to `s3://munro-games-play/<id>/`, re-sets `index.wasm` to `application/wasm`, and invalidates CloudFront `/<id>/*`. It serves at `https://play.munro.games/<id>/index.html`. ⚠️ A bare `https://play.munro.games/<id>` (no `/index.html`) returns S3 `AccessDenied` — always link the full path. On iPad Safari, fully close + reopen the tab if you still see an old build after an invalidation.
+`<orientation>` = `landscape` | `portrait` | `any`. `<overlay>` = `off` when the game has its own in-menu Install button (§8), otherwise omit it (default `on` = a small auto-hiding floating Install button). This `aws s3 sync --delete`s the folder to `s3://munro-games-play/<id>/`, re-sets `index.wasm` to `application/wasm`, sets the `manifest.webmanifest` + `sw.js` content-types, invalidates CloudFront `/<id>/*`, and runs `tools/pwa_inject.py` — which makes the build an **installable, offline-capable PWA** (per-game manifest + versioned service worker + icons from the build's `index.icon.png`, plus a visibility-based audio pause). After one online load the installed game plays offline; a redeploy's new build stamp updates clients on their next online visit. It serves at `https://play.munro.games/<id>/index.html`. ⚠️ A bare `https://play.munro.games/<id>` (no `/index.html`) returns S3 `AccessDenied` — always link the full path. On iPad Safari, fully close + reopen the tab if you still see an old build after an invalidation.
 
 ## 5. Font check (pixel fonts often miss glyphs)
 Grep the game's display strings for `·  ★  ◀  ▶  …  •` etc. Many pixel fonts lack them and render as boxes. Confirm with fontTools (`TTFont(font).getBestCmap()`) and swap for glyphs the font has (`/`, `>> <<`, `< >`, `:`). Fix in the game source (helps all platforms).
@@ -62,16 +62,43 @@ Grep the game's display strings for `·  ★  ◀  ▶  …  •` etc. Many pixe
   ```js
   { id:'<id>', title:'...', genre:'...', blurb:'...', eng:'<engineering angle>',
     play:'https://play.munro.games/<id>/index.html',
-    controls:['1 player on touch', '1-3 players on controllers'],
+    controls:['1-3 players', 'Touch', 'Controller'],
     store:{label:'Wishlist on Steam', url:'...'},  // optional
     ribbon:'Demo', group:'uncle-matt' }            // both optional
   ```
-  ⛔ **No em-dashes** in card copy (Matt's house style — use commas/colons). `controls` is an array of short capability chips (players + input methods) shown on the card; any chip whose text contains "touch" is tinted green so phone-playable games stand out. *(Replaced the old `platform:'ipad'|'desktop'` single tag, 2026-10-13 — every game was touch, so the tag was redundant.)*
+  ⛔ **No em-dashes** in card copy (Matt's house style — use commas/colons). `controls` is an array of short, **uniform** capability chips (players + input methods) shown on the card — keep them concise and standard (`1-3 players`, `Single player`, `Touch`, `Controller`, `Keyboard`, `Mouse`); the touch-vs-controller-per-mode nuance goes in the blurb, Steam-style. *(Replaced the old `platform:'ipad'|'desktop'` single tag, 2026-10-13.)*
 - **Commercial & UNRELEASED titles** (Sword & Signet, Apprentice Arena): ship a **trimmed one-level slice + a store/wishlist link**, not the full game, so a free web build can't undercut the paid launch. Already-released (Floodline) and prototypes = full playable demo.
 
 ## 7. Commit
 - **Site repo**: commit + push (`git -C M:/Git/munro-games-site ... ; git push`). One commit. ⚠️ **The build is NOT committed** — it went to S3 in step 4. The only new files here are the card entry in `index.html` and `assets/<id>.png`.
 - **Game repo**: commit the game-side changes (renderer switch, font fixes, web-letterbox line) **in that game's own repo**. ⚠️ **Do NOT push if the repo has `codemagic.yaml`/CI** — a push can trigger a mobile build of the live game. Leave it for Matt to push.
+
+## 8. Install-as-an-app button (in-menu, recommended)
+`pwa_inject.py` exposes a tiny browser API on every game page that the game can call via `JavaScriptBridge`:
+- `window.pwaCanInstall` (bool) — a native install prompt is ready
+- `window.pwaIsIOS` / `window.pwaStandalone` (bool) — iOS Safari (manual Share → Add to Home Screen) / already installed
+- `window.pwaInstall()` → `'prompt'` | `'ios'` | `'none'`
+
+Add an **"INSTALL APP" button to the game's own main menu** (so nothing floats over gameplay), then deploy with `<overlay>` = `off`. Pattern (styled with the game's own button helper; Floodline uses a scene Button, the others build buttons in code):
+```gdscript
+func _setup_install() -> void:
+    if not OS.has_feature("web"):
+        return
+    _install = <make a button the game's usual way>   # visible = false
+    _install.pressed.connect(_do_install)
+    <add it to the menu>
+    var t := Timer.new(); t.wait_time = 1.0; t.timeout.connect(_refresh_install)
+    add_child(t); t.start(); _refresh_install()        # the prompt can arrive after load
+
+func _refresh_install() -> void:
+    _install.visible = bool(JavaScriptBridge.eval(
+        "(window.pwaStandalone!==true)&&((window.pwaCanInstall===true)||(window.pwaIsIOS===true))", true))
+
+func _do_install() -> void:
+    JavaScriptBridge.eval(
+        "(function(){var r=window.pwaInstall&&window.pwaInstall();if(r==='ios'){alert('To install: tap the Share button in Safari, then Add to Home Screen.');}return r;})()", true)
+```
+⚠️ On a "press anything to start" title (Chop Hopper), give the button `focus_mode = FOCUS_NONE` so it doesn't hijack the start input; its default STOP mouse filter already stops a tap on it from also starting the game. If the game has NO menu (idle games like Drone Digger), host it on the Settings/Options panel. These are game-repo edits — compile-check, re-export, re-deploy; ⛔ don't push a game repo with CI.
 
 ## Gotchas worth remembering
 - **`SendUserFile` is invisible in Matt's VSCode extension** — give file paths or a `localhost` URL instead.
