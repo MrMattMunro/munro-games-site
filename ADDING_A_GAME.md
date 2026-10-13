@@ -39,13 +39,19 @@ if OS.has_feature("web"):
 ```
 Guard it to web so the mobile/desktop build is untouched. ⚠️ Don't try to force the size with CSS in `head_include` — it fights the engine and shrinks a few seconds after load on some browsers/DPRs (that bug cost a lot of time).
 
-## 4. Export into the site
+## 4. Export locally, then deploy to S3 (builds do NOT go in git — see banner)
 ```
-mkdir -p M:/Git/munro-games-site/play/<id>
+mkdir -p M:/Git/munro-games-site/play/<id>          # play/ is gitignored = local scratch
 "C:/godot/Godot_v<ver>-stable_win64_console.exe" --headless --path "C:/godot/<name>" \
   --export-release "Web" "M:/Git/munro-games-site/play/<id>/index.html"
 ```
-Then test it: `python -m http.server 8778 --directory M:/Git/munro-games-site`, open `http://localhost:8778/play/<id>/index.html`. **Verify in a FRESH browser (not a cached Chrome tab)** — stale cache made it look broken during the Floodline session.
+Test it locally first: `python -m http.server 8778 --directory M:/Git/munro-games-site`, open `http://localhost:8778/play/<id>/index.html`. **Verify in a FRESH browser (not a cached Chrome tab)** — stale cache made it look broken during the Floodline session.
+
+Then deploy the build to S3 + CloudFront:
+```
+tools/deploy-game.sh <id> "M:/Git/munro-games-site/play/<id>"
+```
+This `aws s3 sync --delete`s the folder to `s3://munro-games-play/<id>/`, re-sets `index.wasm` to `application/wasm`, and invalidates CloudFront `/<id>/*`. It serves at `https://play.munro.games/<id>/index.html`. ⚠️ A bare `https://play.munro.games/<id>` (no `/index.html`) returns S3 `AccessDenied` — always link the full path. On iPad Safari, fully close + reopen the tab if you still see an old build after an invalidation.
 
 ## 5. Font check (pixel fonts often miss glyphs)
 Grep the game's display strings for `·  ★  ◀  ▶  …  •` etc. Many pixel fonts lack them and render as boxes. Confirm with fontTools (`TTFont(font).getBestCmap()`) and swap for glyphs the font has (`/`, `>> <<`, `< >`, `:`). Fix in the game source (helps all platforms).
@@ -55,15 +61,16 @@ Grep the game's display strings for `·  ★  ◀  ▶  …  •` etc. Many pixe
 - **Card**: add one entry to the `GAMES` array in `index.html`:
   ```js
   { id:'<id>', title:'...', genre:'...', blurb:'...', eng:'<engineering angle>',
-    play:'play/<id>/', platform:'ipad'|'desktop',
+    play:'https://play.munro.games/<id>/index.html',
+    controls:['1 player on touch', '1-3 players on controllers'],
     store:{label:'Wishlist on Steam', url:'...'},  // optional
     ribbon:'Demo', group:'uncle-matt' }            // both optional
   ```
-  ⛔ **No em-dashes** in card copy (Matt's house style — use commas/colons). `platform:'ipad'` = touch-playable (green tag); `'desktop'` = keyboard/mouse only.
+  ⛔ **No em-dashes** in card copy (Matt's house style — use commas/colons). `controls` is an array of short capability chips (players + input methods) shown on the card; any chip whose text contains "touch" is tinted green so phone-playable games stand out. *(Replaced the old `platform:'ipad'|'desktop'` single tag, 2026-10-13 — every game was touch, so the tag was redundant.)*
 - **Commercial & UNRELEASED titles** (Sword & Signet, Apprentice Arena): ship a **trimmed one-level slice + a store/wishlist link**, not the full game, so a free web build can't undercut the paid launch. Already-released (Floodline) and prototypes = full playable demo.
 
 ## 7. Commit
-- **Site repo**: commit + push (`git -C M:/Git/munro-games-site ... ; git push`). One commit. The build is big binaries — expect ~tens of MB per game; fine under the Pages 1 GB soft limit until ~8–10 games (then consider shared-engine dedup).
+- **Site repo**: commit + push (`git -C M:/Git/munro-games-site ... ; git push`). One commit. ⚠️ **The build is NOT committed** — it went to S3 in step 4. The only new files here are the card entry in `index.html` and `assets/<id>.png`.
 - **Game repo**: commit the game-side changes (renderer switch, font fixes, web-letterbox line) **in that game's own repo**. ⚠️ **Do NOT push if the repo has `codemagic.yaml`/CI** — a push can trigger a mobile build of the live game. Leave it for Matt to push.
 
 ## Gotchas worth remembering

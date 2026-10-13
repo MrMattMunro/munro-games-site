@@ -10,18 +10,25 @@ Plain static site, mirroring `rivethold-website`. No build step. `index.html` is
 
 ## Adding a game
 
-1. Export a **thread-off** Godot Web build into `play/<id>/`.
-2. Drop a 16:10 screenshot at `assets/<id>.png`.
-3. Add one entry to the `GAMES` array in `index.html` (see the comment block there).
-4. Commit and push — GitHub Pages redeploys automatically.
+Full checklist: **`ADDING_A_GAME.md`**. In short:
 
-Unreleased commercial titles ship as a **trimmed vertical-slice** build plus a `store` link, not the
-full game. Already-released titles (e.g. Floodline) and prototypes can ship as full playable demos.
+1. Export a **thread-off** Godot Web build locally into `play/<id>/` (gitignored scratch).
+2. **Deploy the build to S3:** `tools/deploy-game.sh <id> "M:/Git/munro-games-site/play/<id>"` — it is served at `https://play.munro.games/<id>/index.html` (NOT from this repo).
+3. Drop a 16:10 thumbnail at `assets/<id>.png`.
+4. Add one entry to the `GAMES` array in `index.html`, with `play:'https://play.munro.games/<id>/index.html'`.
+5. Commit + push the card + thumbnail only — GitHub Pages redeploys automatically. **The build is not committed.**
+
+Prototypes and already-released titles (e.g. Floodline) ship as full playable demos. The plan's
+"trimmed vertical-slice for unreleased commercial titles" rule was set aside for Apprentice Arena
+(Matt, 2026-10-09 — it's free/beta, nothing to undercut).
 
 ## Hosting
 
-- GitHub Pages, deploy from `main` / root. `CNAME` → `munro.games`.
-- DNS in Route 53 (AWS profile `munro-personal`), zone `Z0668111H5Y70SCGTI3T`.
+Two tiers (split 2026-10-09 — Godot builds exceed GitHub's 100 MB/file limit):
+
+- **This site** (`munro.games`): GitHub Pages, deploy from `main` / root, `CNAME` → `munro.games`. Holds only `index.html` + `assets/` + `icons/`. `play/` is gitignored.
+- **Game builds** (`play.munro.games`): private S3 bucket `munro-games-play` (us-east-1) behind CloudFront `E6DDPBBVEY1XE`. Deploy via `tools/deploy-game.sh`.
+- DNS in Route 53 (AWS profile `munro-personal`, acct `554605724969`), zone `Z0668111H5Y70SCGTI3T`.
 - Email on Fastmail (`matt@munro.games`).
 
 Plan of record: `claude-assistant/plans/munro-games/2026-10-07-prototype-showcase-page.md`.
