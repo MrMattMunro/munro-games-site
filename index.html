@@ -252,6 +252,7 @@
   <footer>
     <div class="wrap">
       Built in Godot by Matt Munro · <a href="mailto:matt@munro.games">matt@munro.games</a><br>
+      <a href="https://munro.solutions">Munro Solutions</a> · <a href="https://mattmunro.net">mattmunro.net</a><br>
       Art &amp; audio from <a href="https://craftpix.net" target="_blank" rel="noopener">CraftPix</a> and <a href="https://itch.io" target="_blank" rel="noopener">itch.io</a> creators<br>
       © Munro Solutions Pty Ltd
     </div>
@@ -289,6 +290,10 @@
         eng: 'Procedural terrain, a physics vehicle rig, and 1-4 player hotseat on a touch-first GL Compatibility renderer.',
         play: 'https://play.munro.games/floodline/index.html',
         controls: ['1-4 players', 'Touch', 'Keyboard'],
+        stores: [
+          { label: 'App Store', url: 'https://apps.apple.com/app/id6790124017' },
+          { label: 'Google Play', url: 'https://play.google.com/store/apps/details?id=com.munrosolutions.floodline' },
+        ],
       },
       {
         id: 'apprentice-arena',
@@ -348,9 +353,10 @@
       const playBtn = g.play
         ? '<a class="btn btn-play" href="' + g.play + '">▶ Play</a>'
         : '';
-      const storeBtn = g.store
-        ? '<a class="btn btn-store" href="' + g.store.url + '" target="_blank" rel="noopener">' + g.store.label + '</a>'
-        : '';
+      const stores = g.stores || (g.store ? [g.store] : []);
+      const storeBtn = stores.map(function (s) {
+        return '<a class="btn btn-store" href="' + s.url + '" target="_blank" rel="noopener">' + s.label + '</a>';
+      }).join('');
       const caps = (g.controls || []).map(function (c) {
         return '<span class="cap">' + c + '</span>';
       }).join('');
