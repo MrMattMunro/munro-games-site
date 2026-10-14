@@ -17,6 +17,7 @@ NAME="${3:-}"
 ORIENT="${4:-any}"
 THEME="${5:-#0d0d0d}"
 OVERLAY="${6:-on}"   # "off" when the game has its own in-menu Install button
+GA="${7:-}"          # optional GA4 Measurement ID (G-XXXX) injected into the page
 
 PROFILE="munro-personal"
 BUCKET="munro-games-play"
@@ -26,7 +27,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SRC/index.html" ] || { echo "No index.html in $SRC — is that a Godot web export?" >&2; exit 1; }
 
 # Make the build an installable standalone PWA (idempotent; re-applied each deploy).
-python "$HERE/pwa_inject.py" "$SRC" "$ID" "$NAME" "$ORIENT" "$THEME" "$OVERLAY"
+python "$HERE/pwa_inject.py" "$SRC" "$ID" "$NAME" "$ORIENT" "$THEME" "$OVERLAY" "$GA"
 
 echo "Uploading $ID to s3://$BUCKET/$ID/ ..."
 aws s3 sync "$SRC" "s3://$BUCKET/$ID/" --profile "$PROFILE" --delete --no-progress

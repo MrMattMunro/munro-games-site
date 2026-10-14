@@ -24,6 +24,8 @@ orientation = sys.argv[4] if len(sys.argv) > 4 else 'any'
 theme = sys.argv[5] if len(sys.argv) > 5 else '#0d0d0d'
 # overlay "off" when the game has its own in-menu Install button (calls window.pwaInstall()).
 overlay = (len(sys.argv) <= 6) or (sys.argv[6].lower() != 'off')
+# Optional GA4 Measurement ID (G-XXXX) to inject into every game page.
+ga = sys.argv[7] if len(sys.argv) > 7 else ''
 
 idx_path = os.path.join(build, 'index.html')
 if not os.path.exists(idx_path):
@@ -77,7 +79,7 @@ with open(os.path.join(build, 'manifest.webmanifest'), 'w', encoding='utf-8', ne
 #   window.pwaStandalone  bool   - already launched as an installed app
 #   window.pwaInstall()   -> 'prompt' | 'ios' | 'none'
 api = """<!-- pwa:start (tools/pwa_inject.py) -->
-<link rel="manifest" href="manifest.webmanifest">
+%GA%<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="%THEME%">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -130,7 +132,11 @@ b.addEventListener('click',function(){var r=window.pwaInstall();if(r==='ios')ale
 })();</script>
 """
 
-block = (api + (overlay_block if overlay else '') + "<!-- pwa:end -->\n").replace('%THEME%', theme).replace('%NAME%', name)
+ga_tag = ("""<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=%GID%"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','%GID%');</script>
+""".replace('%GID%', ga)) if ga else ''
+block = (api + (overlay_block if overlay else '') + "<!-- pwa:end -->\n").replace('%GA%', ga_tag).replace('%THEME%', theme).replace('%NAME%', name)
 
 # ---- service worker: offline-capable, cache-first, versioned per build ----
 # The cache name is stamped from the injected head + the .pck size, so any build
