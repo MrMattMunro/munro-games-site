@@ -147,8 +147,9 @@ pck = os.path.join(build, 'index.pck')
 pck_size = os.path.getsize(pck) if os.path.exists(pck) else 0
 stamp = hashlib.md5((block + str(pck_size)).encode('utf-8')).hexdigest()[:10]
 sw = """// Auto-injected per-game PWA service worker (tools/pwa_inject.py).
-// Offline-capable: caches the game's files on first load, then serves them from
-// cache so the installed app opens and plays without a connection.
+// Network-first: online, every file is revalidated (cheap 304s via ETag) so a new deploy shows on
+// the next load; each fetch is copied into the cache, which serves the installed app offline.
+// (Cache-first served the previous build until a second reload, since S3 sends no Cache-Control.)
 var CACHE = '%CACHE%';
 self.addEventListener('install', function () { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
@@ -161,17 +162,18 @@ self.addEventListener('fetch', function (e) {
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;  // don't touch other origins
-  e.respondWith(caches.match(req).then(function (hit) {
-    if (hit) return hit;
-    return fetch(req).then(function (res) {
-      if (res && res.status === 200 && res.type === 'basic') {
-        var copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
-      }
-      return res;
-    }).catch(function () {
-      if (req.mode === 'navigate') return caches.match('index.html');
-      return undefined;
+  e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
+    // /game -> /game/ redirect: a navigation can't be answered with a followed redirect
+    if (res.redirected && req.mode === 'navigate') return Response.redirect(res.url, 301);
+    if (res.status === 200 && res.type === 'basic') {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(req.url, copy); });
+    }
+    return res;
+  }).catch(function () {
+    return caches.match(req.url, { ignoreSearch: true }).then(function (hit) {
+      if (hit) return hit;
+      return req.mode === 'navigate' ? caches.match('index.html') : Response.error();
     });
   }));
 });
