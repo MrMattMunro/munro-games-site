@@ -11,8 +11,10 @@ A checklist for putting one more Godot game on the showcase. Floodline (commit h
 > thumbnails). `play/` is gitignored. **Deploy a build with `tools/deploy-game.sh <id> <build-dir>`**
 > (syncs to S3, fixes the wasm content-type, invalidates the CloudFront cache). So the old "export into
 > the site repo + git-commit the build + push" steps below (4, 7) are superseded: export locally, run
-> deploy-game.sh, and the only thing you commit here is the card in index.html + the thumbnail. The
-> card's `play:` is the full `https://play.munro.games/<id>/index.html` URL.
+> deploy-game.sh, and the only thing you commit here is the card in index.html + the thumbnail.
+> Short URLs work: a CloudFront viewer-request function (`tools/cloudfront/folder-index.js`) 301s
+> `/<id>` to `/<id>/` and serves `/<id>/index.html` for it, so `https://play.munro.games/<id>` is fine
+> to share and use as the card's `play:`.
 
 **Locations**
 - Site repo: `M:\Git\munro-games-site` (SSH remote `MrMattMunro/munro-games-site`, GitHub Pages). **NOT** `C:\godot`. Holds the showcase only; builds are in S3 (see banner above).
@@ -51,7 +53,7 @@ Then deploy the build to S3 + CloudFront:
 ```
 tools/deploy-game.sh <id> "M:/Git/munro-games-site/play/<id>" "<Display Name>" <orientation> "#0d0d0d" <overlay>
 ```
-`<orientation>` = `landscape` | `portrait` | `any`. `<overlay>` = `off` when the game has its own in-menu Install button (§8), otherwise omit it (default `on` = a small auto-hiding floating Install button). This `aws s3 sync --delete`s the folder to `s3://munro-games-play/<id>/`, re-sets `index.wasm` to `application/wasm`, sets the `manifest.webmanifest` + `sw.js` content-types, invalidates CloudFront `/<id>/*`, and runs `tools/pwa_inject.py` — which makes the build an **installable, offline-capable PWA** (per-game manifest + versioned service worker + icons from the build's `index.icon.png`, plus a visibility-based audio pause). After one online load the installed game plays offline; a redeploy's new build stamp updates clients on their next online visit. It serves at `https://play.munro.games/<id>/index.html`. ⚠️ A bare `https://play.munro.games/<id>` (no `/index.html`) returns S3 `AccessDenied` — always link the full path. On iPad Safari, fully close + reopen the tab if you still see an old build after an invalidation.
+`<orientation>` = `landscape` | `portrait` | `any`. `<overlay>` = `off` when the game has its own in-menu Install button (§8), otherwise omit it (default `on` = a small auto-hiding floating Install button). This `aws s3 sync --delete`s the folder to `s3://munro-games-play/<id>/`, re-sets `index.wasm` to `application/wasm`, sets the `manifest.webmanifest` + `sw.js` content-types, invalidates CloudFront `/<id>/*`, and runs `tools/pwa_inject.py` — which makes the build an **installable, offline-capable PWA** (per-game manifest + versioned service worker + icons from the build's `index.icon.png`, plus a visibility-based audio pause). The service worker is **network-first** (fetches with `cache:'no-cache'`, falls back to the cache only when offline), so a redeploy shows up on the next online load. ⚠️ Games deployed before 2026-11-25 still carry the old cache-first worker until they are redeployed. It serves at `https://play.munro.games/<id>` (the CloudFront `folder-index` function maps that to `/<id>/index.html`). On iPad Safari, fully close + reopen the tab if you still see an old build after an invalidation.
 
 ## 5. Font check (pixel fonts often miss glyphs)
 Grep the game's display strings for `·  ★  ◀  ▶  …  •` etc. Many pixel fonts lack them and render as boxes. Confirm with fontTools (`TTFont(font).getBestCmap()`) and swap for glyphs the font has (`/`, `>> <<`, `< >`, `:`). Fix in the game source (helps all platforms).
@@ -61,7 +63,7 @@ Grep the game's display strings for `·  ★  ◀  ▶  …  •` etc. Many pixe
 - **Card**: add one entry to the `GAMES` array in `index.html`:
   ```js
   { id:'<id>', title:'...', genre:'...', blurb:'...', eng:'<engineering angle>',
-    play:'https://play.munro.games/<id>/index.html',
+    play:'https://play.munro.games/<id>',
     controls:['1-3 players', 'Touch', 'Controller'],
     store:{label:'Wishlist on Steam', url:'...'},  // optional
     ribbon:'Demo', group:'uncle-matt' }            // both optional
