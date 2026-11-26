@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-217TDQDW4W"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-217TDQDW4W');
+  </script>
+
+  <title>Leaderboards · Munro Games</title>
+  <meta name="description" content="Online leaderboards for the Munro Games prototypes.">
+
+  <link rel="icon" href="icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0d0d0d">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --surface-2: #1c1c1c;
+      --rule:      #2a2a2a;
+      --ink:       #ededed;
+      --ink-dim:   #9a9a9a;
+      --orange:    #f7941d;
+      --orange-dk: #c9770f;
+      --radius: 14px;
+      --maxw: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 16px; }
+
+    header {
+      padding: clamp(1.5rem, 4vw, 2.5rem) 0 0.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .home { display: flex; align-items: center; gap: 0.8rem; text-decoration: none; }
+    .home img { width: clamp(100px, 22vw, 180px); height: auto; display: block; }
+    h1 {
+      font-family: Orbitron, sans-serif; font-weight: 900;
+      font-size: clamp(1.05rem, 4.6vw, 2rem);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin: 0; color: var(--orange);
+    }
+    .updated { color: var(--ink-dim); font-size: 0.85rem; margin: 0.25rem 0 0; }
+
+    main { padding: 1rem 0 4rem; }
+    .games {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+      gap: 1.25rem;
+    }
+    .game {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem 1.2rem;
+      min-width: 0;
+    }
+    .game-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+    .game h2 { font-family: Orbitron, sans-serif; font-weight: 700; font-size: 1.15rem; margin: 0; }
+    .play {
+      font-weight: 600; font-size: 0.85rem; text-decoration: none;
+      background: var(--orange); color: #111;
+      padding: 0.3rem 0.85rem; border-radius: 999px;
+    }
+    .play:hover { background: #ffa836; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.8rem 0 0.9rem; align-items: center; }
+    .pill {
+      font: inherit; font-size: 0.8rem; font-weight: 600;
+      color: var(--ink-dim); background: transparent;
+      border: 1px solid var(--rule); border-radius: 999px;
+      padding: 0.3rem 0.8rem; cursor: pointer;
+    }
+    .pill:hover { border-color: var(--ink-dim); }
+    .pill.on { color: var(--orange); background: rgba(247, 148, 29, 0.09); border-color: rgba(247, 148, 29, 0.5); }
+    select {
+      font: inherit; font-size: 0.85rem; color: var(--ink);
+      background: var(--surface-2); border: 1px solid var(--rule); border-radius: 8px;
+      padding: 0.3rem 0.5rem; max-width: 100%;
+    }
+
+    .periods { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 460px) { .periods { grid-template-columns: 1fr; } }
+    .period h3 {
+      font-family: Orbitron, sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--orange); margin: 0 0 0.4rem;
+      padding-bottom: 0.35rem; border-bottom: 1px solid var(--rule);
+    }
+    ol { list-style: none; margin: 0; padding: 0; }
+    li {
+      display: grid; grid-template-columns: 2.2em 1fr auto; gap: 0.5rem; align-items: baseline;
+      padding: 0.22rem 0; font-size: 0.95rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    li .rank { color: var(--ink-dim); text-align: right; font-variant-numeric: tabular-nums; }
+    li .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    li .score { font-weight: 600; font-variant-numeric: tabular-nums; }
+    li.first .rank, li.first .score { color: var(--orange); }
+    .note { color: var(--ink-dim); font-size: 0.9rem; padding: 0.4rem 0; }
+
+    body.tv { font-size: 1.25rem; }
+    body.tv .wrap { max-width: none; padding: 0 2.5vw; }
+    body.tv .controls select { pointer-events: none; }
+
+    footer { border-top: 1px solid var(--rule); padding: 1.5rem 0 2.5rem; text-align: center; color: var(--ink-dim); font-size: 0.85rem; }
+    footer a { color: var(--orange); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <a class="home" href="./"><img src="assets/mascot-lockup.png" alt="Munro Games home"></a>
+    <div>
+      <h1>Leaderboards</h1>
+      <p class="updated" id="updated">Loading…</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="games" id="games"></div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Scores update every 30 seconds. "Today" is the Brisbane day. · <a href="./">All games</a>
+    </div>
+  </footer>
+
+  <script>
+    const API = 'https://api.munro.games';
+    const REFRESH_MS = 30000;
+    const SHOWN = 10;
+    // ?tv: bigger type, and each game steps to its next category on every refresh.
+    const TV = new URLSearchParams(location.search).has('tv');
+    if (TV) document.body.classList.add('tv');
+
+    const state = [];   // one per game: { game, board, category, el }
+
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+
+    function thousands(n) { return Number(n).toLocaleString('en-AU'); }
+
+    function format(cat, value) {
+      // Everhorde's survival time stops counting when the dragon lands (14:35).
+      if (cat.id === 'survived_ms' && value >= 875000) return 'Reached the dragon!';
+      switch (cat.unit) {
+        case 'ms': {
+          const s = value / 1000;
+          const m = Math.floor(s / 60);
+          const rest = (s - m * 60).toFixed(1).padStart(4, '0');
+          return m + ':' + rest;
+        }
+        case 'm': return thousands(value) + ' m';
+        case 'combo': return value + ' combo';
+        default: return thousands(value);
+      }
+    }
+
+    function render(s, data) {
+      const cat = s.game.categories.find(c => c.id === s.category);
+      const periods = s.el.querySelector('.periods');
+      periods.replaceChildren();
+      for (const [key, label] of [['today', 'Today'], ['all', 'All time']]) {
+        const box = el('div', 'period');
+        box.append(el('h3', null, label));
+        const rows = data ? (data[key] || []).filter(r => r.rank <= SHOWN) : null;
+        if (!rows) box.append(el('div', 'note', 'Couldn’t reach the scoreboard.'));
+        else if (!rows.length) box.append(el('div', 'note', 'No scores yet. Be the first!'));
+        else {
+          const ol = el('ol');
+          for (const r of rows) {
+            const li = el('li', r.rank === 1 ? 'first' : '');
+            li.append(el('span', 'rank', r.rank + '.'), el('span', 'name', r.name), el('span', 'score', format(cat, r.score)));
+            ol.append(li);
+          }
+          box.append(ol);
+        }
+        periods.append(box);
+      }
+      for (const b of s.el.querySelectorAll('.pill')) b.classList.toggle('on', b.dataset.cat === s.category);
+      const sel = s.el.querySelector('select');
+      if (sel) sel.value = s.board;
+    }
+
+    async function load(s) {
+      const q = new URLSearchParams({ game: s.game.game, board: s.board, category: s.category });
+      try {
+        const res = await fetch(API + '/board?' + q, { cache: 'no-store' });
+        render(s, res.ok ? await res.json() : null);
+      } catch (e) {
+        render(s, null);
+      }
+    }
+
+    function block(game) {
+      const s = { game, board: game.boards[0].id, category: game.categories[0].id };
+      const card = el('section', 'game');
+      const head = el('div', 'game-head');
+      head.append(el('h2', null, game.title));
+      if (game.url) {
+        const a = el('a', 'play', '▶ Play');
+        a.href = game.url;
+        head.append(a);
+      }
+      card.append(head);
+
+      const controls = el('div', 'controls');
+      if (game.boards.length > 1) {
+        const sel = el('select');
+        sel.setAttribute('aria-label', game.title + ' board');
+        for (const b of game.boards) {
+          const o = el('option', null, b.title);
+          o.value = b.id;
+          sel.append(o);
+        }
+        sel.addEventListener('change', () => { s.board = sel.value; load(s); });
+        controls.append(sel);
+      } else {
+        controls.append(el('span', 'note', game.boards[0].title));
+      }
+      if (game.categories.length > 1) {
+        for (const c of game.categories) {
+          const b = el('button', 'pill', c.title);
+          b.type = 'button';
+          b.dataset.cat = c.id;
+          b.addEventListener('click', () => { s.category = c.id; load(s); });
+          controls.append(b);
+        }
+      }
+      card.append(controls, el('div', 'periods'));
+      s.el = card;
+      return s;
+    }
+
+    function stepCategory(s) {
+      const cats = s.game.categories;
+      const i = cats.findIndex(c => c.id === s.category);
+      s.category = cats[(i + 1) % cats.length].id;
+    }
+
+    function stamp() {
+      document.getElementById('updated').textContent =
+        'Updated ' + new Date().toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    async function start() {
+      const host = document.getElementById('games');
+      try {
+        const res = await fetch(API + '/boards', { cache: 'no-store' });
+        const { games } = await res.json();
+        for (const g of games) {
+          const s = block(g);
+          state.push(s);
+          host.append(s.el);
+        }
+      } catch (e) {
+        document.getElementById('updated').textContent = 'The scoreboard is offline right now. Try again soon.';
+        return;
+      }
+      state.forEach(load);
+      stamp();
+      setInterval(() => {
+        if (document.hidden) return;
+        for (const s of state) {
+          if (TV) stepCategory(s);
+          load(s);
+        }
+        stamp();
+      }, REFRESH_MS);
+    }
+
+    start();
+  </script>
+</body>
+</html>
